@@ -1,17 +1,12 @@
-import { serve } from "bun";
+import express from 'express';
 
-// Define the request handler
-async function handleRequest(req: Request) {
-    // Respond with "Hello, world!" for every request
-    return new Response("Hello, world!", {
-        headers: { "content-type": "text/plain" },
-    });
-}
+const app = express();
+const port = parseInt(process.env.PORT || '3000'); // You can use any port that is free on your system
 
-// Start the server on port 3000
-serve({
-    port: process.env.PORT || 3000,
-    fetch: handleRequest,
+app.get('/', (req, res) => {
+    res.send('Hello World!');
 });
 
-console.log("Server running on http://localhost:3000");
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+});
