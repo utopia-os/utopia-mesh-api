@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "bun build --target=node index.ts --outdir build",
-    "start": "bun run index.js"
+    "start": "node build/index.js"
   },
   "devDependencies": {
     "@types/bun": "latest"
