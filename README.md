@@ -16,3 +16,11 @@ npm install
 npm run dev
 ```
 
+
+### schema spect
+
+/ api/places
+
+query:
+    - place
+    - radius

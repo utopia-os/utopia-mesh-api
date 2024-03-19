@@ -8,7 +8,8 @@
     "start": "node build/index.js"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "directus-typescript-generator": "^0.0.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
