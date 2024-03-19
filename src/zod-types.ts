@@ -12,7 +12,7 @@ export const zPlace = z.object({
     id: z.string(),
     name: z.string(),
     position: pointSchema,
-    text: z.string(),
+    text: z.string().describe('Full text description of the place'),
     user_created: z.string().optional().nullable(),
     user_updated: z.string().optional().nullable(),
     layer: z.string(),

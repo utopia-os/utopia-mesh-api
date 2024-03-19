@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: Your API Title
+  version: 1.0.0
+servers:
+  - url: https://lionfish-app-a8os7.ondigitalocean.app
+    description: Production server
+paths:
+  /places:
+    get:
+      summary: Get places
+      description: Returns a list of places, optionally filtered by city.
+      operationId: getPlaces # This is where you add the operationId
+      parameters:
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: The city name to filter places by.
+      responses:
+        '200':
+          description: A JSON array of places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+components:
+  schemas:
+    Place:
+      type: object
+      properties:
+        date_created:
+          type: string
+          format: date-time
+          description: The date the place was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date the place was last updated. Can be null.
+        id:
+          type: string
+          description: The unique identifier for the place.
+        name:
+          type: string
+          description: The name of the place.
+        position:
+          $ref: '#/components/schemas/Point'
+        text:
+          type: string
+          description: Full text description of the place.
+        user_created:
+          type: string
+          nullable: true
+          description: The identifier of the user who created the place. Optional and can be null.
+        user_updated:
+          type: string
+          nullable: true
+          description: The identifier of the user who last updated the place. Optional and can be null.
+        layer:
+          type: string
+          description: The layer the place belongs to.
+    Point:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point]
+          description: GeoJSON Point type
+        coordinates:
+          type: array
+          description: A longitude and latitude pair
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2

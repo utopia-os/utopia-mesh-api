@@ -19,10 +19,33 @@ npm run dev
 ```
 
 
-### schema spect
+### schema spec prompt
 
-/ api/places
+I have an api https://lionfish-app-a8os7.ondigitalocean.app
 
-query:
-    - place
-    - radius
+for which I need the open api spec to be generated.
+
+there is the endpoint `/places`
+
+which return json in to this zod format:
+
+```ts
+const zPlace = z.object({
+    date_created: z.string(),
+    date_updated: z.string().nullable(),
+    id: z.string(),
+    name: z.string(),
+    position: pointSchema,
+    text: z.string().describe('Full text description of the place'),
+    user_created: z.string().optional().nullable(),
+    user_updated: z.string().optional().nullable(),
+    layer: z.string(),
+});
+
+```
+
+
+filtering places works like this via query params:
+
+- `city` - e.g. berlin will scope places to berlin
+
