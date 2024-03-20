@@ -14,11 +14,18 @@ type PlaceResults = z.infer<typeof zPlaces>
 
 app.get('/places', async (req, res) => {
 	const all_places = (await client.request(readItems('places'))) as PlaceResults
+	const all_events = (await client.request(readItems('events'))) as PlaceResults
+	const all_items = (await client.request(readItems('items'))) as PlaceResults
+
+	const all = [
+		...all_places,
+		...all_events,
+		...all_items
+	]
 
 	const city = req.query.city
-	const radius = req.query.radius
 
-	let results_places = zPlaces.parse(all_places)
+	let results_places = zPlaces.parse(all)
 
 	if (city && typeof city === 'string') {
 		const target_area = await resolvePlace(city)
@@ -27,9 +34,10 @@ app.get('/places', async (req, res) => {
 		const [min_lon, min_lat, max_lon, max_lat] = target_rectangle
 
 		console.log('searching for places in', city, JSON.stringify(target_rectangle))
-		results_places = all_places
+		results_places = all
+			.filter((place) => place.position)
 			.map((place) => {
-				const place_position = place.position
+				const place_position = place.position!
 				const match = geolib.isPointInPolygon(place_position.coordinates, [
 					{ latitude: min_lat, longitude: min_lon },
 					{ latitude: max_lat, longitude: min_lon },

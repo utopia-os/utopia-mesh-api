@@ -7,17 +7,17 @@ const pointSchema = z.object({
 });
 
 export const zPlace = z.object({
-    date_created: z.string(),
-    date_updated: z.string().nullable(),
     id: z.string(),
     name: z.string(),
-    position: pointSchema,
+    position: pointSchema.optional().nullable(),
     text: z.string().describe('Full text description of the place'),
-    user_created: z.string().optional().nullable(),
-    user_updated: z.string().optional().nullable(),
-    layer: z.string(),
-});
+}).strip();
 
+//date_created: z.string(),
+//date_updated: z.string().nullable(),
+//user_created: z.string().optional().nullable(),
+//user_updated: z.string().optional().nullable(),
+//layer: z.string(),
 
 export const zPlaces = z.array(zPlace);
 
