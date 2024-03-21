@@ -13,8 +13,6 @@ npm install
 
 #add OPENAI_API_KEY to .env - needed for text embeddings
 
-```
-
 npm run dev
 ```
 

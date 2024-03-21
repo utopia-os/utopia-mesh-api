@@ -17,18 +17,19 @@ type PlaceResults = z.infer<typeof zPlaces>
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { OpenAIEmbeddings } from '@langchain/openai'
 
+let all_places: PlaceResults = []
 let vectorStore = new MemoryVectorStore(new OpenAIEmbeddings())
-let all = await getAllData()
+let prep_promise =  init_and_prep_places()
 
-async function getAllData() {
-	const all_places = (await client.request(readItems('places'))) as PlaceResults
-	const all_events = (await client.request(readItems('events'))) as PlaceResults
-	const all_items = (await client.request(readItems('items'))) as PlaceResults
+async function init_and_prep_places() {
+	const all_place_items = (await client.request(readItems('places'))) as PlaceResults
+	const all_event_items = (await client.request(readItems('events'))) as PlaceResults
+	const all_generic_items = (await client.request(readItems('items'))) as PlaceResults
 
-	const all =  zPlaces.parse([...all_places, ...all_events, ...all_items])
+	all_places =  zPlaces.parse([...all_place_items, ...all_event_items, ...all_generic_items])
 
 	vectorStore.addDocuments(
-		all.map((o) => {
+		all_places.map((o) => {
 			return {
 				pageContent: `${o.name} ${o.text}`,
 				metadata: {
@@ -44,10 +45,11 @@ const truthy = ['true', '1', 'yes']
 
 app.get('/places', async (req, res) => {
 	const city = req.query.city ?? req.query.region ?? req.query.contry
-
 	const add_vector = truthy.includes(`${req.query.vector}`)
 
-	let results_places = all
+	await prep_promise
+
+	let results_places = all_places
 
 	if (city && typeof city === 'string') {
 		const target_area = await resolvePlace(city)
@@ -56,7 +58,7 @@ app.get('/places', async (req, res) => {
 		const [min_lon, min_lat, max_lon, max_lat] = target_rectangle
 
 		console.log('searching for places in', city, JSON.stringify(target_rectangle))
-		results_places = all
+		results_places = all_places
 			.filter((place) => place.position)
 			.filter((place) => {
 				const place_position = place.position!
@@ -94,6 +96,7 @@ app.get('/geo/:place', async (req, res) => {
 })
 
 app.get('/similar/:what', async (req, res) => {
+	await prep_promise
 	let count = parseInt(`${req.query.count}`)
 	if (isNaN(count)) {
 		count = 10
