@@ -8,13 +8,13 @@
 - `node` is only the production build target.
 
 ```bash
+
 npm install
+
+#add OPENAI_API_KEY to .env - needed for text embeddings
+
 ```
 
-
-## development
-
-```bash
 npm run dev
 ```
 
