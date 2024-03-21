@@ -1,15 +1,17 @@
 import express from 'express'
 import { createDirectus, readItems, rest } from '@directus/sdk'
-import { zPlaces } from './src/zod-types.ts'
+import {zPlace, zPlaces} from './src/zod-types.ts'
 import { z } from 'zod'
 import { resolvePlace } from './src/geo.ts'
 import * as geolib from 'geolib'
 
 const app = express()
+app.set('json spaces', 4);
 const port = parseInt(process.env.PORT || '3000') // You can use any port that is free on your system
 
 const client = createDirectus<any>('https://api.utopia-lab.org/').with(rest())
 
+type PlaceResult = z.infer<typeof zPlace>
 type PlaceResults = z.infer<typeof zPlaces>
 
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
@@ -23,7 +25,7 @@ async function getAllData() {
 	const all_events = (await client.request(readItems('events'))) as PlaceResults
 	const all_items = (await client.request(readItems('items'))) as PlaceResults
 
-	const all = [...all_places, ...all_events, ...all_items]
+	const all =  zPlaces.parse([...all_places, ...all_events, ...all_items])
 
 	vectorStore.addDocuments(
 		all.map((o) => {
@@ -36,7 +38,6 @@ async function getAllData() {
 		})
 	)
 
-	return zPlaces.parse(all)
 }
 
 const truthy = ['true', '1', 'yes']
@@ -78,7 +79,7 @@ app.get('/places', async (req, res) => {
 					distance,
 					...(add_vector
 						? {
-								vector: vectorStore.memoryVectors.find((v) => v.metadata.place.id === place.id)
+								vector: vectorStore.memoryVectors.find((v) => (v.metadata.place as PlaceResult).id === place.id)
 							}
 						: {})
 				}
@@ -90,6 +91,15 @@ app.get('/places', async (req, res) => {
 
 app.get('/geo/:place', async (req, res) => {
 	res.send(await resolvePlace(req.params.place))
+})
+
+app.get('/similar/:what', async (req, res) => {
+	let count = parseInt(`${req.query.count}`)
+	if (isNaN(count)) {
+		count = 10
+	}
+	const most_similar = await vectorStore.similaritySearch(req.params.what, count)
+	res.send(most_similar.map((o) => o.metadata.place as PlaceResult))
 })
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
