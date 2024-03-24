@@ -22,11 +22,12 @@ let vectorStore = new MemoryVectorStore(new OpenAIEmbeddings())
 let prep_promise =  init_and_prep_places()
 
 async function init_and_prep_places() {
-	const all_place_items = (await client.request(readItems('places'))) as PlaceResults
-	const all_event_items = (await client.request(readItems('events'))) as PlaceResults
+	//const all_place_items = (await client.request(readItems('places'))) as PlaceResults
+	//const all_event_items = (await client.request(readItems('events'))) as PlaceResults
 	const all_generic_items = (await client.request(readItems('items'))) as PlaceResults
 
-	all_places =  zPlaces.parse([...all_place_items, ...all_event_items, ...all_generic_items])
+	all_places = all_generic_items
+	//all_places =  zPlaces.parse([...all_place_items, ...all_event_items, ...all_generic_items])
 
 	vectorStore.addDocuments(
 		all_places.map((o) => {
