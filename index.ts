@@ -80,13 +80,21 @@ app.get('/places', async (req, res) => {
 				return {
 					...place,
 					distance,
-					...(add_vector
-						? {
-								vector: vectorStore.memoryVectors.find((v) => (v.metadata.place as PlaceResult).id === place.id)
-							}
-						: {})
 				}
 			})
+	}
+
+	if(add_vector) {
+		results_places = results_places.map( place => {
+			return {
+				...place,
+				...(add_vector
+					? {
+						vector: vectorStore.memoryVectors.find((v) => (v.metadata.place as PlaceResult).id === place.id)
+					}
+					: {})
+			}
+		})
 	}
 
 	res.send(results_places)
